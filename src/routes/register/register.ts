@@ -31,7 +31,6 @@ export const registerHandler: RequestHandler<
   ReqBody
 > = async (req, res) => {
   try {
-    console.log("req.body", req.body);
     const parsedData = schema.parse(req.body);
 
     const { name, email, password } = parsedData;
@@ -79,8 +78,6 @@ export const registerHandler: RequestHandler<
     });
   } catch (e) {
     if (e instanceof z.ZodError) {
-      console.log(e.issues);
-
       return res.status(400).json({
         errors: e.issues.map((err) => ({
           key: err.path.join("."),
