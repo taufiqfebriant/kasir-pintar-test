@@ -4,6 +4,7 @@ import { RequestHandler } from "express";
 import { z } from "zod";
 import { db } from "../../db";
 import { attendancesTable } from "../../db/schema";
+import elasticsearchClient from "../../utils/elasticsearch";
 
 const schema = z.object({
   type: z.enum(["clock-in", "clock-out"], {
@@ -27,6 +28,24 @@ type ResBody =
     };
 
 type ReqBody = z.infer<typeof schema>;
+
+const syncWithElasticsearch = async (attendance: SelectAttendance) => {
+  try {
+    await elasticsearchClient.index({
+      index: "attendances",
+      id: attendance.id.toString(),
+      body: {
+        userId: attendance.userId,
+        clockIn: attendance.clockIn,
+        clockOut: attendance.clockOut,
+        createdAt: attendance.createdAt,
+        updatedAt: attendance.updatedAt,
+      },
+    });
+  } catch (error) {
+    console.error("Error syncing with Elasticsearch:", error);
+  }
+};
 
 export const postHandler: RequestHandler<unknown, ResBody, ReqBody> = async (
   req,
@@ -79,6 +98,8 @@ export const postHandler: RequestHandler<unknown, ResBody, ReqBody> = async (
         .where(eq(attendancesTable.id, newAttendanceIds[0].id))
         .limit(1);
 
+      await syncWithElasticsearch(newAttendance[0]);
+
       return res.status(201).json({
         data: {
           id: newAttendance[0].id,
@@ -114,6 +135,8 @@ export const postHandler: RequestHandler<unknown, ResBody, ReqBody> = async (
         .from(attendancesTable)
         .where(eq(attendancesTable.id, todayAttendance[0].id))
         .limit(1);
+
+      await syncWithElasticsearch(updatedAttendance[0]);
 
       return res.status(200).json({
         data: {
