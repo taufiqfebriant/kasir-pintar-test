@@ -85,6 +85,8 @@ export const postHandler: RequestHandler<unknown, ResBody, ReqBody> = async (
       });
     }
 
+    console.log("e", e);
+
     return res.status(500).json({ message: "Internal server error" });
   }
 };
