@@ -8,7 +8,7 @@ export const usersTable = mysqlTable("users", {
   email: varchar("email", { length: 255 }).notNull().unique(),
   password: varchar("password", { length: 255 }).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull().onUpdateNow(),
+  updatedAt: timestamp("updated_at").onUpdateNow(),
 });
 
 export const attendancesTable = mysqlTable("attendances", {
@@ -19,5 +19,5 @@ export const attendancesTable = mysqlTable("attendances", {
   clockIn: timestamp("clock_in").notNull(),
   clockOut: timestamp("clock_out"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull().onUpdateNow(),
+  updatedAt: timestamp("updated_at").onUpdateNow(),
 });

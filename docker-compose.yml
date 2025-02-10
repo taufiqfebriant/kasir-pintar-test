@@ -8,6 +8,7 @@ services:
       MYSQL_DATABASE: kasir_pintar
       MYSQL_USER: kasirpintar
       MYSQL_PASSWORD: kasirpintar
+      TZ: Asia/Jakarta
     ports:
       - "3306:3306"
     volumes:
