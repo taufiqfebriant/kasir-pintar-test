@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { registerHandler } from "./register.js";
+import { postHandler } from "./post.js";
 
 const router = Router();
 
-router.post("/", registerHandler);
+router.post("/", postHandler);
 
 export { router as register };

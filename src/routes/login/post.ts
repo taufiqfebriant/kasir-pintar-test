@@ -28,7 +28,7 @@ type ResBody =
 
 type ReqBody = z.infer<typeof schema>;
 
-export const loginHandler: RequestHandler<unknown, ResBody, ReqBody> = async (
+export const postHandler: RequestHandler<unknown, ResBody, ReqBody> = async (
   req,
   res
 ) => {

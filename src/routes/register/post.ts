@@ -25,11 +25,10 @@ type ResBody =
 
 type ReqBody = z.infer<typeof schema>;
 
-export const registerHandler: RequestHandler<
-  unknown,
-  ResBody,
-  ReqBody
-> = async (req, res) => {
+export const postHandler: RequestHandler<unknown, ResBody, ReqBody> = async (
+  req,
+  res
+) => {
   try {
     const parsedData = schema.parse(req.body);
 

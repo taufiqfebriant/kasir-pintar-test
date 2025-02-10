@@ -5,4 +5,4 @@ const router = Router();
 
 router.post("/", postHandler);
 
-export { router as login };
+export { router as attendances };
