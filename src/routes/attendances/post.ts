@@ -1,4 +1,5 @@
-import { and, eq, isNull } from "drizzle-orm";
+import dayjs from "dayjs";
+import { and, eq, gte, lte } from "drizzle-orm";
 import { RequestHandler } from "express";
 import { z } from "zod";
 import { db } from "../../db";
@@ -33,7 +34,6 @@ export const postHandler: RequestHandler<unknown, ResBody, ReqBody> = async (
 ) => {
   try {
     const parsedData = schema.parse(req.body);
-
     const { type } = parsedData;
     const userId = req.auth?.id;
 
@@ -41,19 +41,25 @@ export const postHandler: RequestHandler<unknown, ResBody, ReqBody> = async (
       return res.status(401).json({ message: "Unauthorized" });
     }
 
-    const currentAttendance = await db
+    const now = dayjs().tz("Asia/Jakarta");
+
+    const startOfDay = now.startOf("day");
+    const endOfDay = now.endOf("day");
+
+    const todayAttendance = await db
       .select()
       .from(attendancesTable)
       .where(
         and(
           eq(attendancesTable.userId, userId),
-          isNull(attendancesTable.clockOut)
+          gte(attendancesTable.clockIn, startOfDay.toDate()),
+          lte(attendancesTable.clockIn, endOfDay.toDate())
         )
       )
       .limit(1);
 
     if (type === "clock-in") {
-      if (currentAttendance.length > 0) {
+      if (todayAttendance.length > 0) {
         return res
           .status(400)
           .json({ message: "You have already clocked in today." });
@@ -63,7 +69,7 @@ export const postHandler: RequestHandler<unknown, ResBody, ReqBody> = async (
         .insert(attendancesTable)
         .values({
           userId,
-          clockIn: new Date(),
+          clockIn: now.toDate(),
         })
         .$returningId();
 
@@ -86,21 +92,27 @@ export const postHandler: RequestHandler<unknown, ResBody, ReqBody> = async (
     }
 
     if (type === "clock-out") {
-      if (currentAttendance.length === 0) {
+      if (todayAttendance.length === 0) {
         return res
           .status(400)
           .json({ message: "You need to clock-in before clocking out." });
       }
 
+      if (todayAttendance[0].clockOut) {
+        return res
+          .status(400)
+          .json({ message: "You have already clocked out today." });
+      }
+
       await db
         .update(attendancesTable)
-        .set({ clockOut: new Date() })
-        .where(eq(attendancesTable.id, currentAttendance[0].id));
+        .set({ clockOut: now.toDate() })
+        .where(eq(attendancesTable.id, todayAttendance[0].id));
 
       const updatedAttendance = await db
         .select()
         .from(attendancesTable)
-        .where(eq(attendancesTable.id, currentAttendance[0].id))
+        .where(eq(attendancesTable.id, todayAttendance[0].id))
         .limit(1);
 
       return res.status(200).json({

@@ -1,6 +1,12 @@
+import dayjs from "dayjs";
+import timezone from "dayjs/plugin/timezone";
+import utc from "dayjs/plugin/utc";
 import express from "express";
 import { verifyJWT } from "./middlewares/verify-jwt";
 import { router } from "./routes";
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 const app = express();
 
