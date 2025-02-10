@@ -17,6 +17,7 @@ const envSchema = z.object({
     .min(1, "MYSQL_PORT is required")
     .regex(/^\d+$/, "MYSQL_PORT must be a valid number")
     .transform((val) => Number(val)),
+  MYSQL_HOST: z.string().min(1, "MYSQL_HOST is required"),
   ELASTIC_PASSWORD: z.string().min(1, "ELASTIC_PASSWORD is required"),
   DISCOVERY_TYPE: z.string().min(1, "DISCOVERY_TYPE is required"),
   ELASTICSEARCH_PORT: z
@@ -24,6 +25,7 @@ const envSchema = z.object({
     .min(1, "ELASTICSEARCH_PORT is required")
     .regex(/^\d+$/, "ELASTICSEARCH_PORT must be a valid number")
     .transform((val) => Number(val)),
+  ELASTICSEARCH_HOST: z.string().min(1, "ELASTICSEARCH_HOST is required"),
   PMA_PORT: z
     .string()
     .min(1, "PMA_PORT is required")
