@@ -7,7 +7,7 @@ const envSchema = z.object({
     .string()
     .min(1, "PORT is required")
     .regex(/^\d+$/, "PORT must be a valid number")
-    .transform((val) => Number(val)), // Transformasi ke number
+    .transform((val) => Number(val)),
 });
 
 export const env = envSchema.parse(process.env);
