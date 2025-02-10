@@ -53,6 +53,15 @@ services:
       start_period: 10s
       timeout: 20s
 
+  redis:
+    image: redis:alpine
+    container_name: redis
+    restart: always
+    ports:
+      - "${REDIS_PORT}:6379"
+    networks:
+      - app-network
+
   app:
     build:
       context: .
@@ -64,16 +73,20 @@ services:
       MYSQL_PORT: ${MYSQL_PORT}
       ELASTICSEARCH_HOST: elasticsearch
       ELASTICSEARCH_PORT: ${ELASTICSEARCH_PORT}
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT}
     ports:
       - "3000:3000"
     depends_on:
       - mysql
       - elasticsearch
+      - redis
     command: >
       /bin/sh -c "
       chmod +x ./scripts/wait-for-it.sh &&
       ./scripts/wait-for-it.sh mysql:${MYSQL_PORT} -- 
       ./scripts/wait-for-it.sh elasticsearch:${ELASTICSEARCH_PORT} -- 
+      ./scripts/wait-for-it.sh redis:${REDIS_PORT} -- 
       npm run dev"
     volumes:
       - .:/app

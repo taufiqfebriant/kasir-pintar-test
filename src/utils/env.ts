@@ -29,6 +29,12 @@ const envSchema = z.object({
     .min(1, "PMA_PORT is required")
     .regex(/^\d+$/, "PMA_PORT must be a valid number")
     .transform((val) => Number(val)),
+  REDIS_HOST: z.string().min(1, "REDIS_HOST is required"),
+  REDIS_PORT: z
+    .string()
+    .min(1, "REDIS_PORT is required")
+    .regex(/^\d+$/, "REDIS_PORT must be a valid number")
+    .transform((val) => Number(val)),
 });
 
 export const env = envSchema.parse(process.env);
